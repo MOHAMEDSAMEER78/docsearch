@@ -1,30 +1,40 @@
 # paragraph_search/views.py
-
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Paragraph, Word
 import json
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 @csrf_exempt
 def add_paragraphs(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        paragraphs = data.get('paragraphs', [])
-
-        for paragraph_text in paragraphs.split('\n\n'):
-            words = [word.lower() for word in paragraph_text.split()]
+    try:
             
-            # Create or retrieve words from the database
-            word_objects = [Word.objects.get_or_create(word=w)[0] for w in words]
-            
-            paragraph = Paragraph(content=paragraph_text, unique_id=hash(paragraph_text))
-            paragraph.save()
-            paragraph.words.set(word_objects)
+            data = json.loads(request.body)
+            paragraphs = data.get('paragraphs', [])
 
-        return JsonResponse({"message": "Paragraphs added successfully"}, status=201)
+            for paragraph_text in paragraphs.split('\n\n'):
+                words = [word.lower() for word in paragraph_text.split()]
+                
+                # Create or retrieve words from the database
+                word_objects = [Word.objects.get_or_create(word=w)[0] for w in words]
+                
+                paragraph = Paragraph(content=paragraph_text, unique_id=hash(paragraph_text))
+                paragraph.save()
+                paragraph.words.set(word_objects)
 
-    return JsonResponse({"error": "Invalid request method"}, status=400)
+            return JsonResponse({"message": "Paragraphs added successfully"}, status=201)
+    
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
 
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def search_paragraphs(request):
     search_word = request.GET.get('word', '').lower()
 
@@ -45,6 +55,8 @@ def search_paragraphs(request):
 
     return JsonResponse({"error": "Missing or empty 'word' parameter"}, status=400)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_all_paragraphs(request):
     all_paragraphs = Paragraph.objects.all()
     result = []
