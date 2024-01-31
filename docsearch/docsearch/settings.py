@@ -37,7 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'paragraphsearch',
+    'userauth',
+    'rest_framework',
 ]
+
+AUTH_USER_MODEL = 'userauth.CustomUser'
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
