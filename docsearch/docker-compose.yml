@@ -10,7 +10,7 @@ services:
       - .:/usr/src/app
     depends_on:
       - db
-    command: ["sh", "-c", "python manage.py makemigrations userauth && python manage.py makemigrations paragraphsearch && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+    command: ["sh", "-c", "python manage.py makemigrations userauth &&  python manage.py makemigrations paragraphsearch && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
     environment:
       - DJANGO_SETTINGS_MODULE=docsearch.settings
     stdin_open: true  # Keep stdin open so you can run management commands
